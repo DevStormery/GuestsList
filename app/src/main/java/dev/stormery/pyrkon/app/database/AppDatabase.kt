@@ -4,12 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import dev.stormery.pyrkon.app.feature_Guests.data.local.data_source.GuestDao
 import dev.stormery.pyrkon.app.feature_Guests.data.local.dto.GuestEntity
 
 @Database(
     entities = [GuestEntity::class],
-    version = 1,
+    version = 3,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -35,7 +36,8 @@ abstract class AppDatabase : RoomDatabase() {
                 context,
                 AppDatabase::class.java,
                 DATABASE_NAME
-            ).build()
+            ).fallbackToDestructiveMigration()
+                .build()
         }
 
     }

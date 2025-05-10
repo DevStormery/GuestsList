@@ -28,6 +28,7 @@ fun GuestsListScreen(
 
     val viewModel = hiltViewModel<GuestsListViewModel>()
     val guestsList = viewModel.guestsList.collectAsState().value
+    val zonesList = viewModel.zonesList.collectAsState().value
 
 
     Box(
@@ -48,6 +49,14 @@ fun GuestsListScreen(
                         .padding(16.dp)
                         .clip(RoundedCornerShape(8.dp))
                 )
+            }
+            Row(
+                Modifier
+                    .fillMaxWidth()
+            ) {
+               zonesList.zones.forEach{
+                   Text(text = it)
+               }
             }
             LazyColumn(
             ) {

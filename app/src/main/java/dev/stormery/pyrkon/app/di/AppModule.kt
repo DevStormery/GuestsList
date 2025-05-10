@@ -7,11 +7,15 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.stormery.pyrkon.app.database.AppDatabase
-import dev.stormery.pyrkon.app.feature_Guests.data.local.GuestDataLocalService
+import dev.stormery.pyrkon.app.feature_Guests.data.local.services.GuestDataLocalService
 import dev.stormery.pyrkon.app.feature_Guests.data.local.data_source.GuestDao
+import dev.stormery.pyrkon.app.feature_Guests.data.local.services.ZonesDataLocalService
 import dev.stormery.pyrkon.app.feature_Guests.data.repository.GuestRepositoryImpl
+import dev.stormery.pyrkon.app.feature_Guests.data.repository.ZonesRepositoryImpl
 import dev.stormery.pyrkon.app.feature_Guests.domain.repository.GuestRepository
+import dev.stormery.pyrkon.app.feature_Guests.domain.repository.ZonesRepository
 import dev.stormery.pyrkon.app.feature_Guests.domain.use_cases.GetGuestsListUseCase
+import dev.stormery.pyrkon.app.feature_Guests.domain.use_cases.GetZonesListUseCase
 import dev.stormery.pyrkon.app.feature_Guests.presentation.GuestsListViewModel
 import javax.inject.Singleton
 
@@ -19,8 +23,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-
-
+//region Dao
     @Provides
     @Singleton
     fun provideGuestDao(
@@ -28,7 +31,9 @@ object AppModule {
     ): GuestDao {
         return AppDatabase.getInstance(context)!!.guestDao()
     }
+//endregion
 
+//region Services
     @Provides
     @Singleton
     fun provideGuestDataLocalService(
@@ -39,32 +44,72 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideZonesDataLocalService(
+        @ApplicationContext context: Context,
+    ): ZonesDataLocalService {
+        return ZonesDataLocalService(context)
+    }
+//endregion
+
+//region Repositories
+    @Provides
+    @Singleton
     fun provideGuestRepository(
         @ApplicationContext context: Context,
+        guestDao: GuestDao,
     ):GuestRepository{
         return GuestRepositoryImpl(
-            provideGuestDataLocalService(context)
+            provideGuestDataLocalService(context),
+            guestDao
         )
     }
 
+    @Provides
+    @Singleton
+    fun provideZonesRepository(
+        @ApplicationContext context: Context,
+    ):ZonesRepository{
+        return ZonesRepositoryImpl(
+            provideZonesDataLocalService(context)
+        )
+    }
+//endregion
+
+//region UseCases
     @Provides
     @Singleton
     fun provideGetGuestsListUseCase(
         @ApplicationContext context: Context,
+        guestDao: GuestDao,
     ): GetGuestsListUseCase {
         return GetGuestsListUseCase(
-            provideGuestRepository(context)
+            provideGuestRepository(context, guestDao)
         )
     }
 
     @Provides
     @Singleton
-    fun provideGuestsListViewModel(
+    fun provideGetZonesListUseCase(
         @ApplicationContext context: Context,
-    ): GuestsListViewModel {
-        return GuestsListViewModel(
-            provideGetGuestsListUseCase(context)
+    ): GetZonesListUseCase {
+        return GetZonesListUseCase(
+            provideZonesRepository(context)
         )
     }
+//endregion
 
+//region ViewModels
+    @Provides
+    @Singleton
+    fun provideGuestsListViewModel(
+        @ApplicationContext context: Context,
+        guestDao: GuestDao,
+    ): GuestsListViewModel {
+        return GuestsListViewModel(
+            provideGetGuestsListUseCase(context,guestDao),
+            provideGetZonesListUseCase(context)
+
+        )
+    }
+//endregion
 }
