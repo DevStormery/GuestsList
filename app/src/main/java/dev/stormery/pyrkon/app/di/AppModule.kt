@@ -56,11 +56,10 @@ object AppModule {
     @Singleton
     fun provideGuestRepository(
         @ApplicationContext context: Context,
-        guestDao: GuestDao,
     ):GuestRepository{
         return GuestRepositoryImpl(
             provideGuestDataLocalService(context),
-            guestDao
+            provideGuestDao(context)
         )
     }
 
@@ -80,10 +79,9 @@ object AppModule {
     @Singleton
     fun provideGetGuestsListUseCase(
         @ApplicationContext context: Context,
-        guestDao: GuestDao,
     ): GetGuestsListUseCase {
         return GetGuestsListUseCase(
-            provideGuestRepository(context, guestDao)
+            provideGuestRepository(context)
         )
     }
 
@@ -103,10 +101,9 @@ object AppModule {
     @Singleton
     fun provideGuestsListViewModel(
         @ApplicationContext context: Context,
-        guestDao: GuestDao,
     ): GuestsListViewModel {
         return GuestsListViewModel(
-            provideGetGuestsListUseCase(context,guestDao),
+            provideGetGuestsListUseCase(context),
             provideGetZonesListUseCase(context)
 
         )

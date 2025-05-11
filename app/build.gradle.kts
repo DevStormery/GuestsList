@@ -59,6 +59,10 @@ dependencies {
     implementation("androidx.hilt:hilt-work:1.0.0")
     implementation("androidx.work:work-runtime-ktx:2.8.1")
 
+//    //Coil
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+
     //Gson
     implementation("com.google.code.gson:gson:2.10.1")
 

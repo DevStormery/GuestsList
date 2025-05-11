@@ -62,7 +62,7 @@ fun GuestsListScreen(
             ) {
                 guestsList.forEach{
                     item{
-                        GuestListRowItem(it.name)
+                        GuestListRowItem(it)
                     }
                 }
             }
