@@ -9,9 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import dev.stormery.pyrkon.app.R
+import dev.stormery.pyrkon.app.feature_Guests.presentation.GuestDetailScreen
 import dev.stormery.pyrkon.app.feature_Guests.presentation.GuestsListScreen
 import dev.stormery.pyrkon.app.navigation.components.TopBar
 
@@ -29,10 +32,23 @@ fun NavigationHost(navController: NavHostController) {
                 navController = navController,
                 startDestination = NavigationScreens.GuestsList.route,
             ){
+                NavigationUtils.setNavController(navController)
                 composable(
                     route = NavigationScreens.GuestsList.route,
                 ){
                     GuestsListScreen()
+                }
+                composable(
+                    route = NavigationScreens.GuestDetail.route+"/{guestName}",
+                    arguments = listOf(
+                        navArgument("guestName"){
+                            type = NavType.StringType
+                            nullable = false
+                        }
+                    )
+                ){
+                    val guestName = it.arguments?.getString("guestName")?:""
+                    GuestDetailScreen(guestName, onBackPressed = {navController.popBackStack()})
                 }
             }
         }
