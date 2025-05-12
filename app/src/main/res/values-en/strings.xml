@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">Pyrkon</string>
     <string name="guests_list">Guests List</string>
+    <string name="zone">Zone</string>
+    <string name="all_zones">All</string>
 </resources>

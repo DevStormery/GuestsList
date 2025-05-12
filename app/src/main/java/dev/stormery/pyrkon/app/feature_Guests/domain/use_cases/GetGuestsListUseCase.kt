@@ -9,5 +9,5 @@ import kotlinx.coroutines.withContext
 class GetGuestsListUseCase(
     private val repository: GuestRepository
 ) {
-    operator fun invoke() : Flow<List<Guest>> = repository.getGuestsList()
+    operator fun invoke(isRefreshing:Boolean = false) : Flow<List<Guest>> = repository.getGuestsList(isRefreshing)
 }

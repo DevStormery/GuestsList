@@ -3,4 +3,10 @@
     <string name="guests_list">Lista Gości</string>
     <string name="zone">Strefa</string>
     <string name="all_zones">Wszystkie</string>
+    <string name="zones">Strefy</string>
+    <string name="no_guests_found">Nie znaleziono gości dla zapytania: %1$s</string>
+    <string name="no_guests_in_zone">Brak gości w strefie: %1$s</string>
+    <string name="no_guests">Brak dostępnych gości</string>
+    <string name="search_guest">Kogo szukasz?</string>
+
 </resources>

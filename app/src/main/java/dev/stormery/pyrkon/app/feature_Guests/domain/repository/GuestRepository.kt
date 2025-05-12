@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface GuestRepository {
     suspend fun fetchGuestsFromService(): List<Guest>
-    fun getGuestsList(): Flow<List<Guest>>
+    fun getGuestsList(isRefreshing:Boolean = false): Flow<List<Guest>>
 }

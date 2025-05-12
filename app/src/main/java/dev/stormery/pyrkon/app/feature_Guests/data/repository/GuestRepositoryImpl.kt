@@ -8,6 +8,7 @@ import dev.stormery.pyrkon.app.feature_Guests.domain.model.toGuestData
 import dev.stormery.pyrkon.app.feature_Guests.domain.model.toGuestEntity
 import dev.stormery.pyrkon.app.feature_Guests.domain.repository.GuestRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
@@ -24,16 +25,16 @@ class GuestRepositoryImpl(
         return service.loadGuestsFromAssets()
     }
 
-    override fun getGuestsList(): Flow<List<Guest>> = flow {
+    override fun getGuestsList(isRefreshing:Boolean): Flow<List<Guest>> = flow {
         try {
             val localData = dao.getAllGuests().firstOrNull()
 
-            if (localData.isNullOrEmpty()) {
+            if (localData.isNullOrEmpty() || isRefreshing) {
                 val guests = fetchGuestsFromService()
                 Log.d(TAG, "Fetching guests from remote service: $guests")
                 dao.insertGuests(guests.map { it.toGuestEntity() })
             }
-
+            delay(3000) // Simulate network delay to show loading state
             dao.getAllGuests()
                 .map { list -> list.map { it.toGuestData() } }
                 .collect { emit(it) }

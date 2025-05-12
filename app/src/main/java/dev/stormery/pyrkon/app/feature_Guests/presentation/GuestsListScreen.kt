@@ -1,7 +1,6 @@
 package dev.stormery.pyrkon.app.feature_Guests.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,35 +10,56 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.stormery.pyrkon.app.R
 import dev.stormery.pyrkon.app.feature_Guests.presentation.components.GuestListRowItem
+import dev.stormery.pyrkon.app.feature_Guests.presentation.state.FilterEvent
 import dev.stormery.pyrkon.app.navigation.components.TopBar
 import dev.stormery.pyrkon.app.ui.components.DropdownMenu
+import dev.stormery.pyrkon.app.ui.components.SearchBar
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun GuestsListScreen(
 ) {
     val viewModel = hiltViewModel<GuestsListViewModel>()
     val guestsList = viewModel.guestsList.collectAsState().value
+    val guestsListPreview = viewModel.filteredGuestsList.collectAsState().value
     val zonesList = viewModel.zonesList.collectAsState().value
+    val searchQuery = remember { mutableStateOf("") } //Only to display on empty list
+    val selectedZone = remember { mutableStateOf("") } //Only to display on empty list
+
+    val refreshScope = rememberCoroutineScope()
+    var refreshing by remember { mutableStateOf(false) }
+    fun refresh() {
+        refreshing = true
+        viewModel.onRefresh()
+        refreshing = false
+    }
+    val pullRefreshState = rememberPullRefreshState(refreshing, ::refresh)
 
     Scaffold(
         topBar = {
@@ -47,7 +67,11 @@ fun GuestsListScreen(
         }
     ) { padding->
         Box(
-            modifier = Modifier.padding(padding).fillMaxSize().background(color = MaterialTheme.colorScheme.background)
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background)
+                .pullRefresh(pullRefreshState)
         ){
             Column(
                 Modifier.fillMaxSize().padding(8.dp),
@@ -56,50 +80,105 @@ fun GuestsListScreen(
                     Modifier.fillMaxWidth().padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ){
-
+                    val allZonesText = stringResource(R.string.all_zones)
                     DropdownMenu(
                         zonesList.zones,
                         modifier = Modifier.fillMaxWidth(0.4f).clip(RoundedCornerShape(15.dp)).background(MaterialTheme.colorScheme.background),
                         onItemSelected = { zone ->
-                            //viewModel.onEvent(GuestsListEvent.OnZoneSelected(zone))
+                            selectedZone.value = zone
+                            if(zone == allZonesText) {
+                                viewModel.onFilterEvent(FilterEvent.ClearZoneSearch)
+                            }else{
+                                viewModel.onFilterEvent(
+                                    FilterEvent.SearchByZone(zone)
+                                )
+                            }
                         },
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    TextField(
-                        value = "",
-                        onValueChange = {},
-                        label = { Text(text = "Search") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp)),
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            unfocusedLabelColor = MaterialTheme.colorScheme.primary,
-                            cursorColor = MaterialTheme.colorScheme.primary,
-                            backgroundColor = MaterialTheme.colorScheme.surface,
-                        )
-                    )
+                    SearchBar(stringResource(R.string.search_guest)){
+                        searchQuery.value = it
+                        if(it.isEmpty()){
+                            viewModel.onFilterEvent(FilterEvent.ClearNameSearch)
+                        }else{
+                            viewModel.onFilterEvent(
+                                FilterEvent.SearchByName(it)
+                            )
+                        }
+                    }
+
                 }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    guestsList.forEach{
-                        item{
-                            GuestListRowItem(it)
+                    when{
+                        guestsListPreview.isNotEmpty() ->{
+                            guestsListPreview.forEach{
+                                item{
+                                    GuestListRowItem(it)
+                                }
+                                item{
+                                    Divider(
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        color = MaterialTheme.colorScheme.surface,
+                                        thickness = 1.dp,
+                                    )
+                                }
+                            }
                         }
-                        item{
-                            Divider(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                color = MaterialTheme.colorScheme.surface,
-                                thickness = 1.dp,
-                            )
+                        guestsList.isEmpty() ->{
+                            item{
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center,
+                                ){
+                                    CircularProgressIndicator(
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        modifier = Modifier.padding(16.dp),
+                                    )
+                                }
+                            }
+                        }
+                        guestsListPreview.isEmpty() ->{
+                            item{
+                                val noGuestsText = when{
+                                    searchQuery.value.isNotEmpty() -> stringResource(R.string.no_guests_found, searchQuery.value)
+                                    zonesList.zones.isNotEmpty() -> stringResource(R.string.no_guests_in_zone,selectedZone.value)
+                                    else -> stringResource(R.string.no_guests)
+                                }
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center,
+                                ){
+
+                                    Text(
+                                        text = noGuestsText,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.onBackground,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(16.dp),
+                                    )
+                                }
+                            }
+                        }
+                        guestsList.isEmpty() ->{
+                            item{
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center,
+                                ){
+                                    CircularProgressIndicator(
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        modifier = Modifier.padding(16.dp),
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
+
+            PullRefreshIndicator(refreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
         }
     }
 }

@@ -14,6 +14,7 @@ import dev.stormery.pyrkon.app.feature_Guests.data.repository.GuestRepositoryImp
 import dev.stormery.pyrkon.app.feature_Guests.data.repository.ZonesRepositoryImpl
 import dev.stormery.pyrkon.app.feature_Guests.domain.repository.GuestRepository
 import dev.stormery.pyrkon.app.feature_Guests.domain.repository.ZonesRepository
+import dev.stormery.pyrkon.app.feature_Guests.domain.use_cases.FilterGuestsUseCase
 import dev.stormery.pyrkon.app.feature_Guests.domain.use_cases.GetGuestsListUseCase
 import dev.stormery.pyrkon.app.feature_Guests.domain.use_cases.GetZonesListUseCase
 import dev.stormery.pyrkon.app.feature_Guests.presentation.GuestsListViewModel
@@ -94,6 +95,14 @@ object AppModule {
             provideZonesRepository(context)
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideFilterGuestsUseCase(
+    ): FilterGuestsUseCase {
+        return FilterGuestsUseCase()
+    }
+
 //endregion
 
 //region ViewModels
@@ -104,8 +113,8 @@ object AppModule {
     ): GuestsListViewModel {
         return GuestsListViewModel(
             provideGetGuestsListUseCase(context),
-            provideGetZonesListUseCase(context)
-
+            provideGetZonesListUseCase(context),
+            provideFilterGuestsUseCase()
         )
     }
 //endregion
