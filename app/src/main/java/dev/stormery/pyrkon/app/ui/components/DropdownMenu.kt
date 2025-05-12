@@ -30,12 +30,12 @@ import kotlin.math.exp
 @Composable
 fun DropdownMenu(
     items: List<String>,
+    selectedItem: String,
     onItemSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val allZones = stringResource(R.string.all_zones)
     var expanded by remember { mutableStateOf(false) }
-    var selectedItem by remember { mutableStateOf(allZones) }
 
     Box(
         modifier = modifier.wrapContentSize(),
@@ -77,7 +77,6 @@ fun DropdownMenu(
                     text = { Text(allZones) },
                     onClick = {
                         expanded = false
-                        selectedItem = allZones
                         onItemSelected(allZones)
                     },
                 )
@@ -86,7 +85,6 @@ fun DropdownMenu(
                         text = { Text(item) },
                         onClick = {
                             expanded = false
-                            selectedItem = item
                             onItemSelected(item)
                         },
                     )

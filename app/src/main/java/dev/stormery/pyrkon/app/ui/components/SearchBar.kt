@@ -24,13 +24,12 @@ import dev.stormery.pyrkon.app.feature_Guests.presentation.state.FilterEvent
 @Composable
 fun SearchBar(
     label:String,
+    searchQuery:String,
     onSearchApplied: (String) -> Unit
 ) {
-    val searchQuery = remember { mutableStateOf("") }
     TextField(
-        value = searchQuery.value,
+        value = searchQuery,
         onValueChange = {
-            searchQuery.value = it
             onSearchApplied(it)
         },
         label = { Text(label, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)) },
@@ -47,10 +46,9 @@ fun SearchBar(
             textColor = MaterialTheme.colorScheme.onSurface,
         ),
         trailingIcon = {
-            if (searchQuery.value.isNotEmpty()) {
+            if (searchQuery.isNotEmpty()) {
                 IconButton(
                     onClick = {
-                        searchQuery.value = ""
                         onSearchApplied("")
                     }
                 ) {

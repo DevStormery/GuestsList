@@ -1,5 +1,6 @@
 package dev.stormery.pyrkon.app.feature_Guests.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -76,7 +77,6 @@ class GuestsListViewModel @Inject constructor(
             _zonesList.update {
                 zones
             }
-
         }
     }
 

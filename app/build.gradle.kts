@@ -59,9 +59,8 @@ dependencies {
     implementation("androidx.hilt:hilt-work:1.0.0")
     implementation("androidx.work:work-runtime-ktx:2.8.1")
 
-//    //Coil
+    //Coil
     implementation("io.coil-kt:coil-compose:2.6.0")
-
 
     //Gson
     implementation("com.google.code.gson:gson:2.10.1")
@@ -72,21 +71,28 @@ dependencies {
     kapt("androidx.room:room-compiler:$room_version")
 
 
-
     //Refresh
     implementation("androidx.compose.material:material:1.8.0-rc03")
 
     // Test core
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.test:core:1.5.0")
+    testImplementation("com.google.dagger:hilt-android-testing:$dagger_hilt_version")
+    kaptTest("com.google.dagger:hilt-compiler:$dagger_hilt_version")
+    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("junit:junit:4.13.2")
 
+    //Flow or LiveData
+    testImplementation ("app.cash.turbine:turbine:1.0.0")
     // Mockito
     testImplementation("org.mockito:mockito-core:5.17.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
     testImplementation("org.mockito:mockito-inline:5.2.0")
 
-    // Coroutines Test
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+    //StateFlow test
+    testImplementation("app.cash.turbine:turbine:0.12.1")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

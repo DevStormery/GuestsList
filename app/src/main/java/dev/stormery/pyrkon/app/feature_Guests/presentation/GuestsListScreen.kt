@@ -11,8 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,30 +34,40 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import dev.stormery.pyrkon.app.R
 import dev.stormery.pyrkon.app.feature_Guests.presentation.components.GuestListRowItem
 import dev.stormery.pyrkon.app.feature_Guests.presentation.state.FilterEvent
 import dev.stormery.pyrkon.app.navigation.components.TopBar
 import dev.stormery.pyrkon.app.ui.components.DropdownMenu
 import dev.stormery.pyrkon.app.ui.components.SearchBar
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun GuestsListScreen(
+    viewModel:GuestsListViewModel = hiltViewModel<GuestsListViewModel>()
 ) {
-    val viewModel = hiltViewModel<GuestsListViewModel>()
     val guestsList = viewModel.guestsList.collectAsState().value
     val guestsListPreview = viewModel.filteredGuestsList.collectAsState().value
     val zonesList = viewModel.zonesList.collectAsState().value
-    val searchQuery = remember { mutableStateOf("") } //Only to display on empty list
-    val selectedZone = remember { mutableStateOf("") } //Only to display on empty list
+    val searchQuery = remember { mutableStateOf("") }
+    val allZonesText = stringResource(R.string.all_zones)
+    val selectedZone = remember { mutableStateOf(allZonesText) }
+
 
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
     fun refresh() {
         refreshing = true
         viewModel.onRefresh()
-        refreshing = false
+        searchQuery.value = ""
+        viewModel.onFilterEvent(FilterEvent.ClearNameSearch)
+        selectedZone.value = allZonesText
+        viewModel.onFilterEvent(FilterEvent.ClearZoneSearch)
+        refreshScope.launch {
+            refreshing = false
+        }
     }
     val pullRefreshState = rememberPullRefreshState(refreshing, ::refresh)
 
@@ -80,9 +90,9 @@ fun GuestsListScreen(
                     Modifier.fillMaxWidth().padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ){
-                    val allZonesText = stringResource(R.string.all_zones)
                     DropdownMenu(
                         zonesList.zones,
+                        selectedZone.value,
                         modifier = Modifier.fillMaxWidth(0.4f).clip(RoundedCornerShape(15.dp)).background(MaterialTheme.colorScheme.background),
                         onItemSelected = { zone ->
                             selectedZone.value = zone
@@ -94,9 +104,11 @@ fun GuestsListScreen(
                                 )
                             }
                         },
+
+
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    SearchBar(stringResource(R.string.search_guest)){
+                    SearchBar(stringResource(R.string.search_guest),searchQuery.value){
                         searchQuery.value = it
                         if(it.isEmpty()){
                             viewModel.onFilterEvent(FilterEvent.ClearNameSearch)
@@ -118,14 +130,15 @@ fun GuestsListScreen(
                                     GuestListRowItem(it)
                                 }
                                 item{
-                                    Divider(
+                                    HorizontalDivider(
                                         modifier = Modifier.padding(horizontal = 16.dp),
-                                        color = MaterialTheme.colorScheme.surface,
                                         thickness = 1.dp,
+                                        color = MaterialTheme.colorScheme.surface
                                     )
                                 }
                             }
                         }
+                        //Loading
                         guestsList.isEmpty() ->{
                             item{
                                 Box(
@@ -156,19 +169,6 @@ fun GuestsListScreen(
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.onBackground,
                                         textAlign = TextAlign.Center,
-                                        modifier = Modifier.padding(16.dp),
-                                    )
-                                }
-                            }
-                        }
-                        guestsList.isEmpty() ->{
-                            item{
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center,
-                                ){
-                                    CircularProgressIndicator(
-                                        color = MaterialTheme.colorScheme.secondary,
                                         modifier = Modifier.padding(16.dp),
                                     )
                                 }

@@ -11,7 +11,10 @@ class ZonesRepositoryImpl(
     private var cachedZones: Zones? = null
 
     override suspend fun fetchZonesFromService(): Zones {
-        return zonesService.loadZonesFromAssets()
+        val rawZones = zonesService.loadZonesFromAssets()
+        return Zones(
+            zones = rawZones.zones.map { it -> it.lowercase().replaceFirstChar { it.titlecase() } }
+        )
     }
 
     override suspend fun getZonesList(): Zones {
