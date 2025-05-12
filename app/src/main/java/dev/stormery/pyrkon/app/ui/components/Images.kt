@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,14 +48,14 @@ fun RectangularImage(
             .build()
     )
     Box(
-        modifier = modifier.clip(RoundedCornerShape(15.dp)),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ){
         Image(
             painter = painter,
             contentDescription = null,
+            modifier = Modifier.fillMaxWidth(),
             contentScale = ContentScale.Crop,
-
         )
         when(painter.state){
             is AsyncImagePainter.State.Loading -> {
@@ -86,13 +86,11 @@ fun Modifier.shimmerLoading():Modifier = composed {
         ), label = ""
     )
 
-
     background(
         brush = Brush.linearGradient(
             colors = listOf(
-                Color(MaterialTheme.colors.onBackground.value),
-                Color(MaterialTheme.colors.background.value),
-                Color(MaterialTheme.colors.onBackground.value),
+                Color(MaterialTheme.colorScheme.background.value),
+                Color(MaterialTheme.colorScheme.surface.value),
             ),
             start = Offset(startOffsetX,0f),
             end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())

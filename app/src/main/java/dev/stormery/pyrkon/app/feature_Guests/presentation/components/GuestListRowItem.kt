@@ -49,7 +49,7 @@ fun GuestListRowItem(
 
     ){
         Box(Modifier.size(guestImageSize)){
-            RectangularImage(guest.imageURL)
+            RectangularImage(guest.imageURL, modifier = Modifier.clip(RoundedCornerShape(15.dp)))
         }
         Box(
             Modifier.fillMaxHeight().padding(horizontal = 8.dp),

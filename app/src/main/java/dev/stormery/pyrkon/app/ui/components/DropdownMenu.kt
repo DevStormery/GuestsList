@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -18,7 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.stormery.pyrkon.app.R
 import kotlin.math.exp
@@ -47,13 +50,23 @@ fun DropdownMenu(
                 readOnly = true,
                 value = selectedItem,
                 onValueChange = {},
-                textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
-                label = { Text("Strefy",Modifier.padding(vertical = 8.dp)) },
+                textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
+                label = {
+                            Text("Strefy",Modifier.padding(vertical = 8.dp), fontWeight = FontWeight.Bold)
+                        },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
                         expanded = expanded
                     )
                 },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.primary,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    backgroundColor = MaterialTheme.colorScheme.surface,
+                ),
             )
             ExposedDropdownMenu(
                 expanded = expanded,
