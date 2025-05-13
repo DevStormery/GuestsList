@@ -47,8 +47,8 @@ class GuestsListViewModelTest {
         coEvery { getGuestsListUseCase(any()) } returns flowOf(fakeGuests)
         coEvery { getZonesListUseCase() } returns fakeZones
         coEvery { filterGuestsUseCase(any(), any()) } answers { firstArg() }
-
         viewModel = GuestsListViewModel(getGuestsListUseCase, getZonesListUseCase, filterGuestsUseCase)
+        viewModel.init()
     }
 
     @After
@@ -58,6 +58,7 @@ class GuestsListViewModelTest {
 
     @Test
     fun `initial load fetches guests and zones`() = runTest {
+
         viewModel.guestsList.test {
             val guests = awaitItem()
             assertEquals(fakeGuests, guests)
@@ -85,7 +86,6 @@ class GuestsListViewModelTest {
     fun `onFilterEvent with clear resets filters`() = runTest {
         viewModel.onFilterEvent(FilterEvent.ClearNameSearch)
         viewModel.onFilterEvent(FilterEvent.ClearZoneSearch)
-
         viewModel.filteredGuestsList.test {
             val filtered = awaitItem()
             assertEquals(fakeGuests, filtered)
