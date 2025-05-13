@@ -1,7 +1,5 @@
 package dev.stormery.pyrkon.app.feature_Guests.presentation
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -71,6 +69,7 @@ class GuestsListViewModel @Inject constructor(
                 _filteredGuestsList.update {
                     guests
                 }
+                applyFilter()
             }
         }
     }
@@ -104,10 +103,6 @@ class GuestsListViewModel @Inject constructor(
                 result
             }
         }
-    }
-
-    fun textQueryChanged(query:String){
-
     }
 
 
