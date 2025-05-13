@@ -1,6 +1,7 @@
 package dev.stormery.pyrkon.app.feature_Guests.presentation
 
-import androidx.lifecycle.SavedStateHandle
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,6 @@ import dev.stormery.pyrkon.app.feature_Guests.domain.use_cases.GetZonesListUseCa
 import dev.stormery.pyrkon.app.feature_Guests.presentation.state.FilterEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,7 +24,7 @@ import javax.inject.Inject
 class GuestsListViewModel @Inject constructor(
     private val getGuestsUseCase: GetGuestsListUseCase,
     private val getZonesUseCase: GetZonesListUseCase,
-    private val filterGuestsUseCase: FilterGuestsUseCase
+    private val filterGuestsUseCase: FilterGuestsUseCase,
 ):ViewModel() {
 
     private val _guestsList = MutableStateFlow(emptyList<Guest>())
@@ -36,10 +36,14 @@ class GuestsListViewModel @Inject constructor(
     private val _filteredGuestsList = MutableStateFlow(emptyList<Guest>())
     val filteredGuestsList = _filteredGuestsList.asStateFlow()
 
-    private val _searchName = MutableStateFlow("")
-    private val _searchZone = MutableStateFlow("")
 
-    init {
+    private val _searchName = MutableStateFlow("")
+    val searchName = _searchName.asStateFlow()
+
+    private val _searchZone = MutableStateFlow("")
+    val searchZone = _searchZone.asStateFlow()
+
+    fun init() {
         loadGuests()
         loadZones()
     }
@@ -100,6 +104,10 @@ class GuestsListViewModel @Inject constructor(
                 result
             }
         }
+    }
+
+    fun textQueryChanged(query:String){
+
     }
 
 

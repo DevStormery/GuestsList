@@ -2,6 +2,6 @@
 <resources>
 
     <style name="Theme.Pyrkon" parent="android:Theme.Material.Light.NoActionBar" >
-        <item name="android:background">@color/lightBackground</item>
+        <item name="android:background">@color/darkBackground</item>
     </style>
 </resources>

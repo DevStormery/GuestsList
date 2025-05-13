@@ -1,6 +1,7 @@
 package dev.stormery.pyrkon.app.feature_Guests.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,55 +22,56 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
 import dev.stormery.pyrkon.app.R
 import dev.stormery.pyrkon.app.feature_Guests.presentation.components.GuestListRowItem
 import dev.stormery.pyrkon.app.feature_Guests.presentation.state.FilterEvent
 import dev.stormery.pyrkon.app.navigation.components.TopBar
 import dev.stormery.pyrkon.app.ui.components.DropdownMenu
 import dev.stormery.pyrkon.app.ui.components.SearchBar
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun GuestsListScreen(
-    viewModel:GuestsListViewModel = hiltViewModel<GuestsListViewModel>()
+    viewModel: GuestsListViewModel = hiltViewModel(),
 ) {
     val guestsList = viewModel.guestsList.collectAsState().value
     val guestsListPreview = viewModel.filteredGuestsList.collectAsState().value
     val zonesList = viewModel.zonesList.collectAsState().value
-    val searchQuery = remember { mutableStateOf("") }
+    var searchQuery = viewModel.searchName.collectAsState().value
     val allZonesText = stringResource(R.string.all_zones)
-    val selectedZone = remember { mutableStateOf(allZonesText) }
+    var selectedZone = viewModel.searchZone.collectAsState().value.ifEmpty { allZonesText }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
-
-    val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
     fun refresh() {
         refreshing = true
         viewModel.onRefresh()
-        searchQuery.value = ""
         viewModel.onFilterEvent(FilterEvent.ClearNameSearch)
-        selectedZone.value = allZonesText
         viewModel.onFilterEvent(FilterEvent.ClearZoneSearch)
-        refreshScope.launch {
-            refreshing = false
-        }
+        refreshing = false
     }
     val pullRefreshState = rememberPullRefreshState(refreshing, ::refresh)
+
+    LaunchedEffect(Unit) {
+        viewModel.init()
+    }
+
 
     Scaffold(
         topBar = {
@@ -92,10 +94,9 @@ fun GuestsListScreen(
                 ){
                     DropdownMenu(
                         zonesList.zones,
-                        selectedZone.value,
-                        modifier = Modifier.fillMaxWidth(0.4f).clip(RoundedCornerShape(15.dp)).background(MaterialTheme.colorScheme.background),
+                        selectedZone,
+                        modifier = Modifier.fillMaxWidth(0.4f).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.background),
                         onItemSelected = { zone ->
-                            selectedZone.value = zone
                             if(zone == allZonesText) {
                                 viewModel.onFilterEvent(FilterEvent.ClearZoneSearch)
                             }else{
@@ -108,8 +109,7 @@ fun GuestsListScreen(
 
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    SearchBar(stringResource(R.string.search_guest),searchQuery.value){
-                        searchQuery.value = it
+                    SearchBar(stringResource(R.string.search_guest),searchQuery){
                         if(it.isEmpty()){
                             viewModel.onFilterEvent(FilterEvent.ClearNameSearch)
                         }else{
@@ -121,7 +121,10 @@ fun GuestsListScreen(
 
                 }
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().pointerInput(Unit) {
+                        // Detect taps outside of the text field to hide the keyboard
+                        detectTapGestures(onTap = {keyboardController?.hide()}, onPress = {keyboardController?.hide()}, onLongPress = {keyboardController?.hide()})
+                    },
                 ) {
                     when{
                         guestsListPreview.isNotEmpty() ->{
@@ -155,8 +158,8 @@ fun GuestsListScreen(
                         guestsListPreview.isEmpty() ->{
                             item{
                                 val noGuestsText = when{
-                                    searchQuery.value.isNotEmpty() -> stringResource(R.string.no_guests_found, searchQuery.value)
-                                    zonesList.zones.isNotEmpty() -> stringResource(R.string.no_guests_in_zone,selectedZone.value)
+                                    searchQuery.isNotEmpty() -> stringResource(R.string.no_guests_found, searchQuery)
+                                    zonesList.zones.isNotEmpty() -> stringResource(R.string.no_guests_in_zone,selectedZone)
                                     else -> stringResource(R.string.no_guests)
                                 }
                                 Box(

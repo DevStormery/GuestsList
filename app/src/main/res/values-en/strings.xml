@@ -4,4 +4,9 @@
     <string name="guests_list">Guests List</string>
     <string name="zone">Zone</string>
     <string name="all_zones">All</string>
+    <string name="zones">Zones</string>
+    <string name="no_guests_found">No guests found for query: %1$s</string>
+    <string name="no_guests_in_zone">No guests in zone: %1$s</string>
+    <string name="no_guests">No available guests</string>
+    <string name="search_guest">Search guest</string>
 </resources>

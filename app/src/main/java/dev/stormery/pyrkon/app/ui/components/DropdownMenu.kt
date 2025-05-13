@@ -52,8 +52,8 @@ fun DropdownMenu(
                 onValueChange = {},
                 textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
                 label = {
-                            Text(stringResource(R.string.zones),Modifier.padding(vertical = 8.dp), fontWeight = FontWeight.Bold)
-                        },
+                  Text(stringResource(R.string.zones),Modifier.padding(vertical = 8.dp), fontWeight = FontWeight.Bold)
+                },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
                         expanded = expanded

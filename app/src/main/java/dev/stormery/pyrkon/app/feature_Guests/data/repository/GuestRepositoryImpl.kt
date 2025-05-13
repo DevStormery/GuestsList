@@ -31,10 +31,11 @@ class GuestRepositoryImpl(
 
             if (localData.isNullOrEmpty() || isRefreshing) {
                 val guests = fetchGuestsFromService()
+                delay(1000) // Simulate network delay to show loading state
                 Log.d(TAG, "Fetching guests from remote service: $guests")
                 dao.insertGuests(guests.map { it.toGuestEntity() })
             }
-            delay(3000) // Simulate network delay to show loading state
+
             dao.getAllGuests()
                 .map { list -> list.map { it.toGuestData() } }
                 .collect { emit(it) }

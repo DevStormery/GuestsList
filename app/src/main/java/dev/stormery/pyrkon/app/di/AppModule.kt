@@ -106,17 +106,4 @@ object AppModule {
 
 //endregion
 
-//region ViewModels
-    @Provides
-    @Singleton
-    fun provideGuestsListViewModel(
-        @ApplicationContext context: Context,
-    ): GuestsListViewModel {
-        return GuestsListViewModel(
-            provideGetGuestsListUseCase(context),
-            provideGetZonesListUseCase(context),
-            provideFilterGuestsUseCase()
-        )
-    }
-//endregion
 }
